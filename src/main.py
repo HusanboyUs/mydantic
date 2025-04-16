@@ -2,6 +2,7 @@ from typing import get_origin, get_args
 import typing
 import time
 
+from exceptions import FieldValidationError
 
 
 class BaseModel:
@@ -15,7 +16,7 @@ class BaseModel:
         self._validate_field(**kwargs)
 
     @classmethod
-    def _validate_field(cls, **kwargs):
+    def _validate_field(cls, **kwargs) -> bool | Exception:
         """Class based method to validate the field types"""
 
         element = lambda value: kwargs.get(value)
@@ -24,26 +25,12 @@ class BaseModel:
 
             current_value = element(native_key)
             if current_value is None:
-                print(f"{current_value} is None")
-                return False
+                raise FieldValidationError(field=f"{native_key}", message=f"{native_key} returned {current_value}")
 
             if not isinstance(current_value, native_type):
-                print(f"{current_value} doesnt match for {native_type}")
-                return False
+                raise FieldValidationError(field=f"{native_key}", message=f"{native_key} does not much with {current_value} type!")
 
         return True
 
 
-class Student(BaseModel):
 
-    name: str
-    surname: str
-
-payload = {
-    "name": "Husan",
-    "surname": "Usmonov"
-}
-
-start = time.perf_counter()
-student = Student(**payload)
-print(time.perf_counter() - start)
