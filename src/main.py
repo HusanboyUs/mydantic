@@ -13,10 +13,10 @@ class BaseModel:
             if key in self.__annotations__:
                 self.__setattr__(key,values)
 
-        self._validate_field(**kwargs)
+        self._validate_fields(**kwargs)
 
     @classmethod
-    def _validate_field(cls, **kwargs) -> bool | Exception:
+    def _validate_fields(cls, **kwargs) -> bool | Exception:
         """Class based method to validate the field types"""
 
         element = lambda value: kwargs.get(value)
@@ -31,6 +31,3 @@ class BaseModel:
                 raise FieldValidationError(field=f"{native_key}", message=f"{native_key} does not much with {current_value} type!")
 
         return True
-
-
-

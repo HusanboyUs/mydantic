@@ -1,7 +1,7 @@
 """File contains custom exceptions for the base class and testing"""
 
 
-__all__ = ["BaseException", "InvalidDataException", "DataOverloadException"]
+__all__ = ["BaseException", "FieldValidationError"]
 __ver__ = 0.1
 
 
