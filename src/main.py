@@ -17,60 +17,75 @@ class BaseModel:
                 else:
                     self.__setattr__(key,values)
 
-      
         self._validate_fields(**kwargs)
     
     @classmethod
     def _has_default(cls, key) -> list[bool,str:None]:
         """Checks if class variable has a default value assigned, returns True if it has False otherwise"""
+        print(cls.__dict__)
         if key not in cls.__dict__:
             return [False]
         return [True, cls.__dict__[key]]
     
-
     @classmethod
     def _validate_fields(cls, **kwargs) -> bool | Exception:
         """Class based method to validate the field types"""
 
+        _external_values = kwargs
 
-        print(cls.__annotations__)
-        print(cls.__dict__)
-        print(kwargs)
-        _annotations = cls.__annotations__
-        
-        for native_key, native_type in _annotations.items():
+        for native_key, native_type in cls.__annotations__.items():
 
+            # checking surface level only -> doest work for values inside of nested dicts
             if native_key not in kwargs.keys():
                 if not cls._has_default(key=native_key)[0]:
-                    raise FieldValidationError(field=native_key, message=f"{native_key} is not valid in both")
+                    raise FieldValidationError(
+                        field=native_key, 
+                        message=f"Given field -> {native_key} is defined in class but not provided in payload"
+                    )
+            
+            # print(f" args: {get_args(native_type)} for {native_type} {native_key}")
+            # print(f" origin: {get_origin(native_type)} for {native_type} {native_key}")
+
+            #if nested - checking only type of the values in nested list
+            if get_origin(native_type):
+
+                for value in cls.__annotations__.get(native_key):
+                    print(f"Value is ------------------- {value}")
+                    if not isinstance(value, dict):
+                        pass
+
+                    if any(isinstance(value, t) and isinstance(value, t) for t in native_key):
+                        pass
+
+                
+
+                break
+
+            # if not nested
+            if not isinstance(_external_values.get(native_key), native_type):
+                print(f"{_external_values.get(native_key)} did not match with {native_type}")
 
 
 
-        # for native_key, native_type in cls.__annotations__.items():
 
-        #     current_value = element(native_key)
-        #     # if current_value is None:
-        #     #     raise FieldValidationError(field=f"{native_key}", message=f"{native_key} returned {current_value}")
-
-        #     if not isinstance(current_value, native_type):
-        #         raise FieldValidationError(field=f"{native_key}", message=f"{native_key} does not much with {current_value} typcle!")
-
-        # return True
     
 
 class Students(BaseModel):
 
     id:int
-    #name:str = "Husan"
+    name:str = "Husan"
     surname:str
-    #age:int
+    friend: dict[str, int]
+
 
 payload = {
     "id":1,
     "name":"John",
     "surname":"Usmonov",
-    "age":19
+    "age":19,
+    "friend": {
+        "id" : 1
+    }
 }
-
 
 student = Students(**payload)
