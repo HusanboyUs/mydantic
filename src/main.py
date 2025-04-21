@@ -22,7 +22,6 @@ class BaseModel:
     @classmethod
     def _has_default(cls, key) -> list[bool,str:None]:
         """Checks if class variable has a default value assigned, returns True if it has False otherwise"""
-        print(cls.__dict__)
         if key not in cls.__dict__:
             return [False]
         return [True, cls.__dict__[key]]
@@ -35,7 +34,7 @@ class BaseModel:
 
         for native_key, native_type in cls.__annotations__.items():
 
-            # checking surface level only -> doest work for values inside of nested dicts
+            # checking surface level only -> doesnt work for values inside of nested dicts
             if native_key not in kwargs.keys():
                 if not cls._has_default(key=native_key)[0]:
                     raise FieldValidationError(
@@ -63,29 +62,6 @@ class BaseModel:
 
             # if not nested
             if not isinstance(_external_values.get(native_key), native_type):
-                print(f"{_external_values.get(native_key)} did not match with {native_type}")
-
-
-
-
-    
-
-class Students(BaseModel):
-
-    id:int
-    name:str = "Husan"
-    surname:str
-    friend: dict[str, int]
-
-
-payload = {
-    "id":1,
-    "name":"John",
-    "surname":"Usmonov",
-    "age":19,
-    "friend": {
-        "id" : 1
-    }
-}
-
-student = Students(**payload)
+                raise FieldValidationError(
+                        field=_external_values.get(native_key),
+                        message=f"{_external_values.get(native_key)} did not match with {native_type}")
